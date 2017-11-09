@@ -24,7 +24,7 @@ public class Parser {
         }
     };
 
-    @Nullable public String getSite(String urlAddress){
+    public String getSite(String urlAddress){
 
         try {
 

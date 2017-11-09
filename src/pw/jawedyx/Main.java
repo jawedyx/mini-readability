@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 public class Main {
 
     private static String site;
-    private static String title;
 
     public static void main(String[] args) {
         System.out.println(args[0]);
@@ -16,37 +15,43 @@ public class Main {
 
         Parser parser = new Parser();
 
-        site = parser.getSite(args[1]);
-        title = parser.getSiteTitle(site);
+        site = parser.getSite(args[2]);
 
-//        if(site.contains("<article")){
-//            System.out.println("Есть тег статьи");
-//        }else {
-//            System.out.println("Нет тега статьи");
-//        }
-
-
-        System.out.println(title);
-
-        Pattern pattern1 = Pattern.compile("<p\\b(.*?)>(.*?)</p>");
+        Pattern pattern1 = Pattern.compile("<div.*>(.*)</div>");
         Matcher matcher1 = pattern1.matcher(site);
         while (matcher1.find())
         {
-            String paragraph = matcher1.group(2);
-            //System.out.println(paragraph + "\n");
+            String div = matcher1.group(0);
 
-            Pattern hrefPattern = Pattern.compile("<a href=\"(.*?)\"(.*?)>(.*?)</a>"); //Искать ссылки в найденном параграфе
-            Matcher hrefMatcher = hrefPattern.matcher(paragraph);
+            /*Поиск заголовков h1 или абзацев, заканчивающихся точкой.
+            В заголовках, как правило, точка не ставится.
+            Прочие заголовки пропускаются.
+            */
+            Pattern paragraphPattern = Pattern.compile("(<h1.*?>[^>]+</h1>)|(<p\\b.*?>.*?\\.?</p>)");
+            Matcher paragraphMatcher = paragraphPattern.matcher(div);
 
-            while (hrefMatcher.find()){
-                paragraph = paragraph.replace(hrefMatcher.group(0), hrefMatcher.group(3) + "[" + hrefMatcher.group(1) + "]");
+            while (paragraphMatcher.find()){
+
+                String foundFragment = paragraphMatcher.group();
+
+                //Поиск и обработка ссылок
+                Pattern hrefPattern = Pattern.compile("<a href=\"(.*?)\"(.*?)>(.*?)</a>");
+                Matcher hrefMatcher = hrefPattern.matcher(foundFragment);
+
+                while (hrefMatcher.find()){
+                    foundFragment = foundFragment.replace(hrefMatcher.group(0), hrefMatcher.group(3) + "[" + hrefMatcher.group(1) + "]");
+                }
+
+                //Удаление лишнего мусора
+                String trimBeforeParagraphEnds = foundFragment.substring(0, foundFragment.length()-4).trim();
+
+                if(foundFragment.startsWith("<h1")  || ( foundFragment.startsWith("<p") && trimBeforeParagraphEnds.endsWith("."))){
+                    System.out.println(foundFragment.split("<.*?>")[1] + "\n");
+                }
+
             }
-            System.out.println(paragraph + "\n");
-
 
         }
-
-
 
     }
 
