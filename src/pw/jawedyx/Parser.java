@@ -140,7 +140,8 @@ public class Parser {
                     //Запись в файл
                     try {
                         writer.write(WordUtils.wrap(foundFragment.split("<.*?>")[1], Config.WORD_WRAP));
-                        writer.append("\n\n");
+                        writer.append(System.lineSeparator());
+                        writer.append(System.lineSeparator());
                         writer.flush();
                     }catch (IOException e){
                         e.printStackTrace();

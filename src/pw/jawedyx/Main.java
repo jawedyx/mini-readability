@@ -5,7 +5,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        if(args.length == 1){
+        if(args.length >= 1){
 
             System.out.println("Program'll take first argument.");
             System.out.println("Your link: " + args[0] + ".");
